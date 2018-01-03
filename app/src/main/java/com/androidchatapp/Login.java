@@ -2,8 +2,8 @@ package com.androidchatapp;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -42,7 +42,6 @@ public class Login extends AppCompatActivity {
                 startActivity(new Intent(Login.this, Register.class));
             }
         });
-
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -77,6 +76,10 @@ public class Login extends AppCompatActivity {
                                     else if(obj.getJSONObject(user).getString("password").equals(pass)){
                                         UserDetails.username = user;
                                         UserDetails.password = pass;
+
+                                        SessionManagement sessionManagement = new SessionManagement(getApplicationContext());
+                                        sessionManagement.createLoginSession(user, pass);
+
                                         startActivity(new Intent(Login.this, Users.class));
                                     }
                                     else {
@@ -96,11 +99,9 @@ public class Login extends AppCompatActivity {
                             pd.dismiss();
                         }
                     });
-
                     RequestQueue rQueue = Volley.newRequestQueue(Login.this);
                     rQueue.add(request);
                 }
-
             }
         });
     }

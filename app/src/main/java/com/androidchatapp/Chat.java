@@ -1,7 +1,6 @@
 package com.androidchatapp;
 
 import android.app.Activity;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -20,6 +19,7 @@ import com.firebase.client.FirebaseError;
 
 import java.util.HashMap;
 import java.util.Map;
+
 public class Chat extends Activity {
     LinearLayout layout;
     RelativeLayout layout_2;
@@ -27,16 +27,26 @@ public class Chat extends Activity {
     EditText messageArea;
     ScrollView scrollView;
     Firebase reference1, reference2;
+
+    public static void sendNotificationToUser(String user, final String message) {
+        Firebase ref = new Firebase("https://chatapp-17b38.firebaseio.com/messages/");
+        final Firebase notifications = ref.child("notificationRequests");
+        Map notification = new HashMap<>();
+        notification.put("username", user);
+        notification.put("message", message);
+        notifications.push().setValue(notification);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
         layout = (LinearLayout) findViewById(R.id.layout1);
-        layout_2 = (RelativeLayout)findViewById(R.id.layout2);
-        sendButton = (ImageView)findViewById(R.id.sendButton);
-        messageArea = (EditText)findViewById(R.id.messageArea);
-        scrollView = (ScrollView)findViewById(R.id.scrollView);
+        layout_2 = (RelativeLayout) findViewById(R.id.layout2);
+        sendButton = (ImageView) findViewById(R.id.sendButton);
+        messageArea = (EditText) findViewById(R.id.messageArea);
+        scrollView = (ScrollView) findViewById(R.id.scrollView);
 
         Firebase.setAndroidContext(Chat.this);
         reference1 = new Firebase("https://chatapp-17b38.firebaseio.com" +
@@ -49,10 +59,11 @@ public class Chat extends Activity {
             public void onClick(View v) {
                 String messageText = messageArea.getText().toString();
 
-                if(!messageText.equals("")){
+                if (!messageText.equals("")) {
                     Map<String, String> map = new HashMap<String, String>();
                     map.put("message", messageText);
                     map.put("user", UserDetails.username);
+                    sendNotificationToUser(UserDetails.username, messageText);
                     reference1.push().setValue(map);
                     reference2.push().setValue(map);
                     messageArea.setText("");
@@ -68,10 +79,9 @@ public class Chat extends Activity {
                 String message = map.get("message").toString();
                 String userName = map.get("user").toString();
 
-                if(userName.equals(UserDetails.username)){
+                if (userName.equals(UserDetails.username)) {
                     addMessageBox("You:-\n" + message, 1);
-                }
-                else{
+                } else {
                     addMessageBox(UserDetails.chatWith + ":-\n" + message, 2);
                 }
             }
@@ -98,18 +108,17 @@ public class Chat extends Activity {
         });
     }
 
-    public void addMessageBox(String message, int type){
+    public void addMessageBox(String message, int type) {
         TextView textView = new TextView(Chat.this);
         textView.setText(message);
 
         LinearLayout.LayoutParams lp2 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp2.weight = 1.0f;
 
-        if(type == 1) {
+        if (type == 1) {
             lp2.gravity = Gravity.LEFT;
             textView.setBackgroundResource(R.drawable.bubble_in);
-        }
-        else{
+        } else {
             lp2.gravity = Gravity.RIGHT;
             textView.setBackgroundResource(R.drawable.bubble_out);
         }
@@ -117,14 +126,4 @@ public class Chat extends Activity {
         layout.addView(textView);
         scrollView.fullScroll(View.FOCUS_DOWN);
     }
-   // public static void sendNotificationToUser(String user, final String message) {
-      //  Firebase ref = new Firebase("https://chatapp-17b38.firebaseio.com/messages/");
-     //   final Firebase notifications = ref.child("notificationRequests");
-
-       // Map notification = new HashMap<>();
-      //  notification.put("username", user);
-      //  notification.put("message", message);
-
-      //  notifications.push().setValue(notification);
-  //  }
 }
